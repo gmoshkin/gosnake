@@ -51,7 +51,7 @@ func (clr RGBColor) GetTermColor() int {
         r := ToTerm(clr.red)
         g := ToTerm(clr.green)
         b := ToTerm(clr.blue)
-        return int(36 * r + 6 * g + b)
+        return int(16 + 36 * r + 6 * g + b)
     }
 }
 
