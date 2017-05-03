@@ -3,29 +3,8 @@ package main
 import (
     "fmt"
     "encoding/hex"
-    "syscall"
-    "unsafe"
+    "github.com/nsf/termbox-go"
 )
-
-type TermSize struct {
-    Row    uint16
-    Col    uint16
-    Xpixel uint16
-    Ypixel uint16
-}
-
-func GetTermSize() *TermSize {
-    ws := &TermSize{}
-    retCode, _, errno := syscall.Syscall(syscall.SYS_IOCTL,
-        uintptr(syscall.Stdin),
-        uintptr(syscall.TIOCGWINSZ),
-        uintptr(unsafe.Pointer(ws)))
-
-    if int(retCode) == -1 {
-        panic(errno)
-    }
-    return ws
-}
 
 type Color interface {
     GetTermColor() int
