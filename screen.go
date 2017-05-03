@@ -43,3 +43,19 @@ func MakeScreen(width uint, height uint) *Screen {
     screen.pixels = make(map[Position]*Color)
     return &screen
 }
+
+func DisplayDixel(top *Color, bottom *Color) {
+    var fg, bg string
+    if top == nil {
+        bg = GetTermBg(-1)
+    } else {
+        bg = GetTermBg((*top).GetTermColor())
+    }
+    if bottom == nil {
+        fg = GetTermFg(-1)
+    } else {
+        fg = GetTermFg((*bottom).GetTermColor())
+    }
+    fmt.Printf("\033[%sm\033[%sm▄\033[0m", bg, fg)
+}
+
