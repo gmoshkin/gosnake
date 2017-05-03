@@ -2,7 +2,6 @@ package main
 
 import (
     "fmt"
-    "encoding/hex"
     "github.com/nsf/termbox-go"
 )
 

@@ -1,5 +1,10 @@
 package main
 
+import (
+    "fmt"
+    "encoding/hex"
+)
+
 type Color interface {
     GetTermColor() int
 }
