@@ -7,32 +7,32 @@ import (
 const littleSquare rune = '▄'
 
 type Position struct {
-    row uint
-    col uint
+    row int
+    col int
 }
 
 type Screen struct {
     pixels map[Position]*Color
-    width uint
-    height uint
+    width int
+    height int
 }
 
-func (screen Screen) GetWidth() uint {
+func (screen Screen) GetWidth() int {
     return screen.width
 }
 
-func (screen Screen) GetHeight() uint {
+func (screen Screen) GetHeight() int {
     return screen.height
 }
 
-func (screen Screen) GetPixel(row uint, col uint) *Color {
+func (screen Screen) GetPixel(row int, col int) *Color {
     return screen.pixels[Position{row, col}]
 }
 
 func (screen Screen) Display() {
-    for i := uint(0); i < screen.GetHeight() / 2; i++ {
+    for i := int(0); i < screen.GetHeight() / 2; i++ {
         row1, row2 := 2 * i, 2 * i + 1
-        for col := uint(0); col < screen.GetWidth(); col++ {
+        for col := int(0); col < screen.GetWidth(); col++ {
             topPtr := screen.GetPixel(row1, col)
             bottomPtr := screen.GetPixel(row2, col)
             fg, bg := GetTermboxAttributes(topPtr, bottomPtr)
@@ -41,7 +41,7 @@ func (screen Screen) Display() {
     }
 }
 
-func MakeScreen(width uint, height uint) *Screen {
+func MakeScreen(width int, height int) *Screen {
     screen := Screen{}
     screen.width = width
     screen.height = height

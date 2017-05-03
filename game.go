@@ -20,7 +20,7 @@ func Close() {
 func main() {
     Init()
     cols, rows := termbox.Size()
-    screen := MakeScreen(uint(cols), uint(rows * 2))
+    screen := MakeScreen(cols, rows * 2)
     screen.Display()
     event := termbox.PollEvent()
     Close()
