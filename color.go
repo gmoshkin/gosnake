@@ -3,6 +3,7 @@ package main
 import (
     "fmt"
     "encoding/hex"
+    "github.com/nsf/termbox-go"
 )
 
 type Color interface {
@@ -50,7 +51,7 @@ func (clr RGBColor) GetTermColor() int {
         r := ToTerm(clr.red)
         g := ToTerm(clr.green)
         b := ToTerm(clr.blue)
-        return int(16 + 36 * r + 6 * g + b)
+        return int(36 * r + 6 * g + b)
     }
 }
 
@@ -66,4 +67,19 @@ func Hex2RGB(hex_color string) RGBColor {
     }
     rgb := RGBColor{ vals[0], vals[1], vals[2], a }
     return rgb
+}
+
+func GetTermboxAttributes(top *Color, bottom *Color) (termbox.Attribute, termbox.Attribute) {
+    fg, bg := 0, 0
+    if top == nil {
+        bg = -1
+    } else {
+        bg = (*top).GetTermColor()
+    }
+    if bottom == nil {
+        fg = -1
+    } else {
+        fg = (*bottom).GetTermColor()
+    }
+    return termbox.Attribute(fg), termbox.Attribute(bg)
 }

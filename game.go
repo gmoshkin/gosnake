@@ -10,6 +10,7 @@ func Init() {
     if err != nil {
         panic(err)
     }
+    termbox.SetOutputMode(termbox.Output216)
 }
 
 func Close() {

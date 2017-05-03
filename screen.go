@@ -1,5 +1,11 @@
 package main
 
+import (
+    "github.com/nsf/termbox-go"
+)
+
+const littleSquare rune = '▄'
+
 type Position struct {
     row uint
     col uint
@@ -20,7 +26,6 @@ func (screen Screen) GetHeight() uint {
 }
 
 func (screen Screen) GetPixel(row uint, col uint) *Color {
-    // return Hex2RGB("#ffffff")
     return screen.pixels[Position{row, col}]
 }
 
@@ -30,9 +35,9 @@ func (screen Screen) Display() {
         for col := uint(0); col < screen.GetWidth(); col++ {
             topPtr := screen.GetPixel(row1, col)
             bottomPtr := screen.GetPixel(row2, col)
-            DisplayDixel(topPtr, bottomPtr)
+            fg, bg := GetTermboxAttributes(topPtr, bottomPtr)
+            termbox.SetCell(int(i), int(col), littleSquare, fg, bg)
         }
-        fmt.Println()
     }
 }
 
@@ -43,19 +48,3 @@ func MakeScreen(width uint, height uint) *Screen {
     screen.pixels = make(map[Position]*Color)
     return &screen
 }
-
-func DisplayDixel(top *Color, bottom *Color) {
-    var fg, bg string
-    if top == nil {
-        bg = GetTermBg(-1)
-    } else {
-        bg = GetTermBg((*top).GetTermColor())
-    }
-    if bottom == nil {
-        fg = GetTermFg(-1)
-    } else {
-        fg = GetTermFg((*bottom).GetTermColor())
-    }
-    fmt.Printf("\033[%sm\033[%sm▄\033[0m", bg, fg)
-}
-
