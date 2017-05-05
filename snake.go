@@ -2,6 +2,7 @@ package main
 
 import (
     tl "github.com/JoelOtter/termloop"
+    "container/list"
 )
 
 type Direction uint8
@@ -13,10 +14,50 @@ const (
     DirectionLeft
 )
 
-const snakeAcceleration float64 = 0.04
+const (
+    snakeAcceleration float64 = 0.04
+    defaultFrequency float64 = 0.5
+    defaultDirection Direction = DirectionRight
+    defaultLastMoved float64 = 0.0
+    defaultAlive bool = true
+    defaultTailLength int = 3
+    defaultTailColor tl.Attr = tl.ColorYellow
+)
+
+type Node struct {
+    x, y int
+}
+
+type Tail struct {
+    cells *list.List
+    cell tl.Cell
+}
+
+func NewTail(x, y int, count int, color tl.Attr) *Tail {
+    t := &Tail { list.New(), tl.Cell { Bg: color } }
+    for i := 0; i < count; i++ {
+        t.cells.PushFront(Node { x + i, y })
+    }
+    return t
+}
+
+func (t *Tail) Move(x, y int) {
+    t.cells.Remove(t.cells.Back())
+    t.cells.PushFront(Node { x, y })
+}
+
+func (t *Tail) Draw(s *tl.Screen) {
+    for e := t.cells.Front(); e != nil; e = e.Next() {
+        p, ok := e.Value.(Node)
+        if ok {
+            s.RenderCell(p.x, p.y, &t.cell)
+        }
+    }
+}
 
 type Snake struct {
     *tl.Entity
+    tail *Tail
     frequency float64
     direction Direction
     lastMoved float64
@@ -24,7 +65,14 @@ type Snake struct {
 }
 
 func NewSnake(x, y int, color tl.Attr) *Snake {
-    s := &Snake { tl.NewEntity(x, y, 1, 1), 0.1, DirectionRight, 0.0, true }
+    s := &Snake {
+        Entity:     tl.NewEntity(x + defaultTailLength, y, 1, 1),
+        tail:       NewTail(x, y, defaultTailLength, defaultTailColor),
+        frequency:  defaultFrequency,
+        direction:  defaultDirection,
+        lastMoved:  defaultLastMoved,
+        alive:      defaultAlive,
+    }
     s.SetCell(0, 0, &tl.Cell{Bg: color, Ch: 's'})
     return s
 }
@@ -64,6 +112,7 @@ func (s *Snake) Move() {
     }
     x, y := s.Position()
     ofs := offsets[s.direction]
+    s.tail.Move(s.Position())
     s.SetPosition(x + ofs[0], y + ofs[1])
 }
 
@@ -120,6 +169,7 @@ func (s *Snake) Draw(screen *tl.Screen) {
         s.Move()
         s.lastMoved -= s.frequency
     }
+    s.tail.Draw(screen)
     s.Entity.Draw(screen)
 }
 
