@@ -55,8 +55,8 @@ func (s *Snake) Move() {
         return
     }
     offsets := map[Direction]([2]int) {
-        DirectionUp:    { 0, 1 },
-        DirectionDown:  { 0, -1 },
+        DirectionUp:    { 0, -1 },
+        DirectionDown:  { 0, 1 },
         DirectionLeft:  { -1, 0 },
         DirectionRight: { 1, 0 },
     }
@@ -69,8 +69,12 @@ func (s *Snake) Tick(event tl.Event) {
     directionChars := map[rune]Direction{
         'l': DirectionRight,
         'h': DirectionLeft,
-        'k': DirectionDown,
-        'j': DirectionUp,
+        'j': DirectionDown,
+        'k': DirectionUp,
+        'd': DirectionRight,
+        'a': DirectionLeft,
+        's': DirectionDown,
+        'w': DirectionUp,
     }
     directionKeys := map[tl.Key]Direction{
         tl.KeyArrowRight: DirectionRight,
