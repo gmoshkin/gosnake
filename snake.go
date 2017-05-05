@@ -115,9 +115,13 @@ func (s *Snake) Draw(screen *tl.Screen) {
     s.Entity.Draw(screen)
 }
 
-func (s *Snake) Collide(other tl.Physical) {
-    ox, oy := other.Position()
-    ow, oh := other.Size()
-    x, y := s.Position()
+func (s *Snake) FieldCollide(f *Field) {
     s.alive = true
+}
+
+func (s *Snake) Collide(other tl.Physical) {
+    switch other := other.(type) {
+    case *Field:
+        s.FieldCollide(other)
+    }
 }
