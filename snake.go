@@ -24,7 +24,7 @@ type Snake struct {
 }
 
 func NewSnake(x, y int, color tl.Attr) *Snake {
-    s := &Snake { tl.NewEntity(x, y, 1, 1), 0.1, DirectionRight, 0.0, false }
+    s := &Snake { tl.NewEntity(x, y, 1, 1), 0.1, DirectionRight, 0.0, true }
     s.SetCell(0, 0, &tl.Cell{Bg: color, Ch: 's'})
     return s
 }
@@ -96,16 +96,12 @@ func (s *Snake) Tick(event tl.Event) {
         }
         switch event.Ch {
         case 'w', 'k':
-            s.alive = true
             s.SetDirection(DirectionUp)
         case 'a', 'h':
-            s.alive = true
             s.SetDirection(DirectionLeft)
         case 's', 'j':
-            s.alive = true
             s.SetDirection(DirectionDown)
         case 'd', 'l':
-            s.alive = true
             s.SetDirection(DirectionRight)
         case '+':
             s.frequency -= snakeAcceleration
@@ -116,22 +112,22 @@ func (s *Snake) Tick(event tl.Event) {
 }
 
 func (s *Snake) Draw(screen *tl.Screen) {
+    if ! s.alive {
+        return
+    }
     s.lastMoved += screen.TimeDelta()
     if s.lastMoved > s.frequency {
         s.Move()
         s.lastMoved -= s.frequency
-        s.alive = false
     }
     s.Entity.Draw(screen)
 }
 
-func (s *Snake) FieldCollide(f *Field) {
-    s.alive = true
-}
-
 func (s *Snake) Collide(other tl.Physical) {
-    switch other := other.(type) {
+    switch other.(type) {
     case *Field:
-        s.FieldCollide(other)
+        s.alive = true
+    case *Background:
+        s.alive = false
     }
 }
