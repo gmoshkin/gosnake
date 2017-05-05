@@ -13,6 +13,8 @@ const (
     DirectionLeft
 )
 
+const snakeAcceleration float64 = 0.04
+
 type Snake struct {
     *tl.Entity
     frequency float64
@@ -81,41 +83,34 @@ func (s *Snake) SetDirection(dir Direction) {
 }
 
 func (s *Snake) Tick(event tl.Event) {
-    directionChars := map[rune]Direction{
-        'l': DirectionRight,
-        'h': DirectionLeft,
-        'j': DirectionDown,
-        'k': DirectionUp,
-        'd': DirectionRight,
-        'a': DirectionLeft,
-        's': DirectionDown,
-        'w': DirectionUp,
-    }
-    directionKeys := map[tl.Key]Direction{
-        tl.KeyArrowRight: DirectionRight,
-        tl.KeyArrowLeft:  DirectionLeft,
-        tl.KeyArrowUp:    DirectionUp,
-        tl.KeyArrowDown:  DirectionDown,
-    }
-    speedChars := map[rune]float64 {
-        '+':  0.01,
-        '-': -0.01,
-    }
     if event.Type == tl.EventKey {
-        dir, ok := directionKeys[event.Key]
-        if ok {
-            s.SetDirection(dir)
+        switch event.Key {
+        case tl.KeyArrowUp:
+            s.SetDirection(DirectionUp)
+        case tl.KeyArrowLeft:
+            s.SetDirection(DirectionLeft)
+        case tl.KeyArrowDown:
+            s.SetDirection(DirectionDown)
+        case tl.KeyArrowRight:
+            s.SetDirection(DirectionRight)
         }
-        dir, ok = directionChars[event.Ch]
-        if ok {
-            s.SetDirection(dir)
-        }
-        accel, ok := speedChars[event.Ch]
-        if ok {
-            s.frequency += accel
-        }
-        if event.Ch == 's' {
+        switch event.Ch {
+        case 'w', 'k':
             s.alive = true
+            s.SetDirection(DirectionUp)
+        case 'a', 'h':
+            s.alive = true
+            s.SetDirection(DirectionLeft)
+        case 's', 'j':
+            s.alive = true
+            s.SetDirection(DirectionDown)
+        case 'd', 'l':
+            s.alive = true
+            s.SetDirection(DirectionRight)
+        case '+':
+            s.frequency -= snakeAcceleration
+        case '-':
+            s.frequency += snakeAcceleration
         }
     }
 }
