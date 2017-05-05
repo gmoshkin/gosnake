@@ -65,6 +65,21 @@ func (s *Snake) Move() {
     s.SetPosition(x + ofs[0], y + ofs[1])
 }
 
+func (s *Snake) SetDirection(dir Direction) {
+    switch dir {
+    case DirectionUp, DirectionDown:
+        switch s.direction {
+        case DirectionLeft, DirectionRight:
+            s.direction = dir
+        }
+    case DirectionLeft, DirectionRight:
+        switch s.direction {
+        case DirectionUp, DirectionDown:
+            s.direction = dir
+        }
+    }
+}
+
 func (s *Snake) Tick(event tl.Event) {
     directionChars := map[rune]Direction{
         'l': DirectionRight,
@@ -89,11 +104,11 @@ func (s *Snake) Tick(event tl.Event) {
     if event.Type == tl.EventKey {
         dir, ok := directionKeys[event.Key]
         if ok {
-            s.direction = dir
+            s.SetDirection(dir)
         }
         dir, ok = directionChars[event.Ch]
         if ok {
-            s.direction = dir
+            s.SetDirection(dir)
         }
         accel, ok := speedChars[event.Ch]
         if ok {
