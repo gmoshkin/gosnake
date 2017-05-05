@@ -110,6 +110,7 @@ func (s *Snake) Draw(screen *tl.Screen) {
     if s.lastMoved > s.frequency {
         s.Move()
         s.lastMoved -= s.frequency
+        s.alive = false
     }
     s.Entity.Draw(screen)
 }
@@ -118,10 +119,5 @@ func (s *Snake) Collide(other tl.Physical) {
     ox, oy := other.Position()
     ow, oh := other.Size()
     x, y := s.Position()
-    if x < ox || x > ox + ow {
-        s.alive = false
-    }
-    if x < ox || x > ox + ow || y > oy || y < oy - oh {
-
-    }
+    s.alive = true
 }
