@@ -6,12 +6,15 @@ import (
 )
 
 type Direction uint8
+type Acceleration float64
 
 const (
     DirectionUp Direction = iota
     DirectionRight
     DirectionDown
     DirectionLeft
+    AccelerationUp Acceleration = -0.2
+    AccelerationDown Acceleration = -AccelerationUp
 )
 
 const (
@@ -55,6 +58,23 @@ func (t *Tail) Draw(s *tl.Screen) {
     }
 }
 
+type Moves struct {
+    queue *list.List
+}
+
+func (m *Moves) Add(move interface{}) {
+    m.queue.PushFront(move)
+}
+
+func (m *Moves) Pop() interface{} {
+    move := m.queue.Back()
+    if move == nil {
+        return move
+    }
+    m.queue.Remove(move)
+    return move.Value
+}
+
 type Snake struct {
     *tl.Entity
     tail *Tail
@@ -62,6 +82,7 @@ type Snake struct {
     direction Direction
     lastMoved float64
     alive bool
+    moves *Moves
 }
 
 func NewSnake(x, y int, color tl.Attr) *Snake {
@@ -72,6 +93,7 @@ func NewSnake(x, y int, color tl.Attr) *Snake {
         direction:  defaultDirection,
         lastMoved:  defaultLastMoved,
         alive:      defaultAlive,
+        moves:      &Moves { list.New() },
     }
     s.SetCell(0, 0, &tl.Cell{Bg: color, Ch: 's'})
     return s
@@ -100,20 +122,34 @@ func (s *Snake) MoveManual(event tl.Event) {
     }
 }
 
+func (s *Snake) DoAction() {
+    action := s.moves.Pop()
+    switch action := action.(type) {
+    case Direction:
+        s.SetDirection(action)
+    case Acceleration:
+        s.frequency += float64(action)
+    }
+}
+
 func (s *Snake) Move() {
     if !s.alive {
         return
     }
-    offsets := map[Direction]([2]int) {
-        DirectionUp:    { 0, -1 },
-        DirectionDown:  { 0, 1 },
-        DirectionLeft:  { -1, 0 },
-        DirectionRight: { 1, 0 },
-    }
+    s.DoAction()
     x, y := s.Position()
-    ofs := offsets[s.direction]
-    s.tail.Move(s.Position())
-    s.SetPosition(x + ofs[0], y + ofs[1])
+    s.tail.Move(x, y)
+    switch s.direction {
+    case DirectionUp:
+        y--
+    case DirectionDown:
+        y++
+    case DirectionLeft:
+        x--
+    case DirectionRight:
+        x++
+    }
+    s.SetPosition(x, y)
 }
 
 func (s *Snake) SetDirection(dir Direction) {
@@ -135,27 +171,27 @@ func (s *Snake) Tick(event tl.Event) {
     if event.Type == tl.EventKey {
         switch event.Key {
         case tl.KeyArrowUp:
-            s.SetDirection(DirectionUp)
+            s.moves.Add(DirectionUp)
         case tl.KeyArrowLeft:
-            s.SetDirection(DirectionLeft)
+            s.moves.Add(DirectionLeft)
         case tl.KeyArrowDown:
-            s.SetDirection(DirectionDown)
+            s.moves.Add(DirectionDown)
         case tl.KeyArrowRight:
-            s.SetDirection(DirectionRight)
+            s.moves.Add(DirectionRight)
         }
         switch event.Ch {
         case 'w', 'k':
-            s.SetDirection(DirectionUp)
+            s.moves.Add(DirectionUp)
         case 'a', 'h':
-            s.SetDirection(DirectionLeft)
+            s.moves.Add(DirectionLeft)
         case 's', 'j':
-            s.SetDirection(DirectionDown)
+            s.moves.Add(DirectionDown)
         case 'd', 'l':
-            s.SetDirection(DirectionRight)
+            s.moves.Add(DirectionRight)
         case '+':
-            s.frequency -= snakeAcceleration
+            s.moves.Add(AccelerationUp)
         case '-':
-            s.frequency += snakeAcceleration
+            s.moves.Add(AccelerationDown)
         }
     }
 }
