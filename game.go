@@ -4,27 +4,21 @@ import (
     tl "github.com/JoelOtter/termloop"
 )
 
-type Field struct {
-    *tl.Rectangle
+func NewLevel(bg tl.Attr) *tl.BaseLevel {
+    return tl.NewBaseLevel(tl.Cell {
+        Bg: bg,
+    })
 }
-
-func NewField(x, y, w, h int, color tl.Attr) *Field {
-    return &Field { tl.NewRectangle(x, y, w, h, color) }
-}
-
-var g *tl.Game
 
 func main() {
-    g = tl.NewGame()
-    g.Screen().SetFps(60)
+    g := tl.NewGame()
+    s := g.Screen()
+    s.SetFps(60)
     g.SetDebugOn(true)
-    g.Screen().EnablePixelMode()
-    l := tl.NewBaseLevel(tl.Cell{
-        Bg: tl.Attr(tl.ColorBlue),
-    })
-    l.AddEntity(NewField(3, 3, 70, 45, tl.ColorBlack))
+    s.EnablePixelMode()
+    l := NewLevel(tl.ColorBlue)
+    l.AddEntity(NewField(3, tl.ColorBlack))
     l.AddEntity(NewSnake(10, 10, tl.ColorWhite))
-    g.Screen().SetLevel(l)
-    // g.Screen().AddEntity(tl.NewFpsText(0, 0, tl.ColorWhite, tl.ColorDefault, 0.5))
+    s.SetLevel(l)
     g.Start()
 }
