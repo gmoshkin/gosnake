@@ -25,6 +25,7 @@ const (
     defaultAlive bool = true
     defaultTailLength int = 3
     defaultTailColor tl.Attr = tl.ColorYellow
+    deadSnakeColor tl.Attr = tl.ColorRed
 )
 
 type Node struct {
@@ -56,6 +57,16 @@ func (t *Tail) Draw(s *tl.Screen) {
             s.RenderCell(p.x, p.y, &t.cell)
         }
     }
+}
+
+func (t *Tail) Collides(x, y int) bool {
+    for e := t.cells.Front(); e != nil; e = e.Next() {
+        node, ok := e.Value.(Node)
+        if ok && x == node.x && y == node.y {
+            return true
+        }
+    }
+    return false
 }
 
 type Moves struct {
@@ -99,6 +110,11 @@ func NewSnake(x, y int, color tl.Attr) *Snake {
     return s
 }
 
+func (s *Snake) Die() {
+    s.alive = false
+    // s.SetCell(0, 0, &tl.Cell{Bg: deadSnakeColor, Ch: 's'})
+}
+
 func (s *Snake) MoveManual(event tl.Event) {
     charActions := map[rune]([2]int){
         'l': { 1, 0 }, 'h': { -1, 0 }, 'k': { 0, -1 }, 'j': { 0, 1 },
@@ -137,19 +153,24 @@ func (s *Snake) Move() {
         return
     }
     s.DoAction()
-    x, y := s.Position()
-    s.tail.Move(x, y)
+    oldX, oldY := s.Position()
+    newX, newY := oldX, oldY
     switch s.direction {
     case DirectionUp:
-        y--
+        newY--
     case DirectionDown:
-        y++
+        newY++
     case DirectionLeft:
-        x--
+        newX--
     case DirectionRight:
-        x++
+        newX++
     }
-    s.SetPosition(x, y)
+    if s.tail.Collides(newX, newY) {
+        s.Die()
+    } else {
+        s.tail.Move(oldX, oldY)
+        s.SetPosition(newX, newY)
+    }
 }
 
 func (s *Snake) SetDirection(dir Direction) {
@@ -214,6 +235,6 @@ func (s *Snake) Collide(other tl.Physical) {
     case *Field:
         s.alive = true
     case *Background:
-        s.alive = false
+        s.Die()
     }
 }
