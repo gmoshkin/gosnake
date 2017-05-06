@@ -7,6 +7,7 @@ import (
 
 type Direction uint8
 type Acceleration float64
+type Growth int
 
 const (
     DirectionUp Direction = iota
@@ -15,15 +16,16 @@ const (
     DirectionLeft
     AccelerationUp Acceleration = -0.2
     AccelerationDown Acceleration = -AccelerationUp
+    Grow Growth = iota
 )
 
 const (
     snakeAcceleration float64 = 0.04
-    defaultFrequency float64 = 0.5
+    defaultFrequency float64 = 0.3
     defaultDirection Direction = DirectionRight
     defaultLastMoved float64 = 0.0
     defaultAlive bool = true
-    defaultTailLength int = 3
+    defaultTailLength int = 6
     defaultTailColor tl.Attr = tl.ColorYellow
     deadSnakeColor tl.Attr = tl.ColorRed
 )
@@ -47,6 +49,10 @@ func NewTail(x, y int, count int, color tl.Attr) *Tail {
 
 func (t *Tail) Move(x, y int) {
     t.cells.Remove(t.cells.Back())
+    t.cells.PushFront(Node { x, y })
+}
+
+func (t *Tail) Grow(x, y int) {
     t.cells.PushFront(Node { x, y })
 }
 
@@ -94,6 +100,7 @@ type Snake struct {
     lastMoved float64
     alive bool
     moves *Moves
+    ate bool
 }
 
 func NewSnake(x, y int, color tl.Attr) *Snake {
@@ -145,6 +152,8 @@ func (s *Snake) DoAction() {
         s.SetDirection(action)
     case Acceleration:
         s.frequency += float64(action)
+    case Growth:
+        s.ate = true
     }
 }
 
@@ -168,7 +177,12 @@ func (s *Snake) Move() {
     if s.tail.Collides(newX, newY) {
         s.Die()
     } else {
-        s.tail.Move(oldX, oldY)
+        if s.ate {
+            s.tail.Grow(oldX, oldY)
+            s.ate = false
+        } else {
+            s.tail.Move(oldX, oldY)
+        }
         s.SetPosition(newX, newY)
     }
 }
@@ -213,6 +227,8 @@ func (s *Snake) Tick(event tl.Event) {
             s.moves.Add(AccelerationUp)
         case '-':
             s.moves.Add(AccelerationDown)
+        case 'e':
+            s.moves.Add(Grow)
         }
     }
 }
