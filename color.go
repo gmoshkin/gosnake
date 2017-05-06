@@ -69,6 +69,10 @@ func Hex2RGB(hex_color string) RGBColor {
     return rgb
 }
 
+func Hex2Term(hex_color string) int {
+    return Hex2RGB(hex_color).GetTermColor()
+}
+
 func GetTermboxAttributes(top *Color, bottom *Color) (termbox.Attribute, termbox.Attribute) {
     fg, bg := 0, 0
     if top == nil {
