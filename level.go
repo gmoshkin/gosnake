@@ -3,6 +3,7 @@ package main
 import (
     tl "github.com/JoelOtter/termloop"
     "container/list"
+    "math/rand"
 )
 
 const (
@@ -11,6 +12,7 @@ const (
     LevelColor tl.Attr = tl.ColorBlack
     FoodColor tl.Attr = tl.ColorYellow
     FoodFrequency float64 = 5.0
+    MaxTries int = 100
 )
 
 type Background struct {
@@ -99,17 +101,54 @@ func NewSnakeLevel() *SnakeLevel {
     return l
 }
 
-func (sl *SnakeLevel) GetFreePoint() (x, y int) {
+func randomCoordinate(start, length int) int {
+    return rand.Intn(length) + start
+}
+
+func  collides(x, y, pX, pY, pW, pH int) bool {
+    if x < pX || y < pY {
+        return false
+    }
+    if x >= pX + pW || y >= pY + pH {
+        return false
+    }
+    return true
+}
+
+func (sl *SnakeLevel) isVacant(x, y int) bool {
+    for _, e := range sl.Entities {
+        p, ok := e.(tl.Physical)
+        if ok && p != sl.background && p != sl.field {
+            pX, pY := p.Position()
+            pW, pH := p.Size()
+            return !collides(x, y, pX, pY, pW, pH)
+        }
+    }
+    return false
+}
+
+func (sl *SnakeLevel) GetVacantPoint() (x, y int) {
     startX, startY := sl.field.Position()
     width, height := sl.field.Size()
-    return (width - startX) / 2, (height - startY) / 2 // FIXME
+    leftTries := MaxTries
+    for leftTries != 0 {
+        x = randomCoordinate(startX, width)
+        y = randomCoordinate(startY, height)
+        if sl.isVacant(x, y) {
+            return x, y
+        }
+        leftTries--
+    }
+    return -1, -1
 }
 
 func (sl *SnakeLevel) Draw(screen *tl.Screen) {
     if sl.foodManager.IsTime(screen.TimeDelta()) {
-        x, y := sl.GetFreePoint()
-        food := sl.foodManager.MakeFood(x, y)
-        sl.AddEntity(food)
+        x, y := sl.GetVacantPoint()
+        if x > 0 && y > 0 {
+            food := sl.foodManager.MakeFood(x, y)
+            sl.AddEntity(food)
+        }
     }
     sl.BaseLevel.Draw(screen)
 }
