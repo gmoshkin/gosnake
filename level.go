@@ -9,7 +9,7 @@ const (
     LevelBorderColor tl.Attr = tl.ColorGreen
     LevelBorderWidth int = 3
     LevelColor tl.Attr = tl.ColorBlack
-    FoodColor tl.Attr = tl.ColorCyan
+    FoodColor tl.Attr = tl.ColorYellow
     FoodFrequency float64 = 5.0
 )
 
@@ -55,23 +55,26 @@ func NewFood(x, y int) *Food {
 }
 
 type FoodManager struct {
-    *tl.Entity
     foods *list.List
     updatePeriod float64
     lastUpdate float64
 }
 
-func (fm *FoodManager) AddFood() *Food {
-    return nil
+func NewFoodManager() *FoodManager {
+    return &FoodManager { list.New(), FoodFrequency, FoodFrequency - 0.5 }
 }
 
-func (fm *FoodManager) TryGetFood(timeDelta float64, field *Field, snake *Snake) *Food {
+func (fm *FoodManager) MakeFood(x, y int) *Food {
+    return NewFood(x, y)
+}
+
+func (fm *FoodManager) IsTime(timeDelta float64) bool {
     fm.lastUpdate += timeDelta
     if fm.lastUpdate > fm.updatePeriod {
         fm.lastUpdate -= fm.updatePeriod
-        return fm.AddFood()
+        return true
     }
-    return nil
+    return false
 }
 
 type SnakeLevel struct {
@@ -79,6 +82,7 @@ type SnakeLevel struct {
     background *Background
     field *Field
     snake *Snake
+    foodManager *FoodManager
 }
 
 func NewSnakeLevel() *SnakeLevel {
@@ -87,9 +91,25 @@ func NewSnakeLevel() *SnakeLevel {
         NewBackground(),
         NewField(),
         NewSnake(10, 10, tl.ColorWhite),
+        NewFoodManager(),
     }
     l.AddEntity(l.background)
     l.AddEntity(l.field)
     l.AddEntity(l.snake)
     return l
+}
+
+func (sl *SnakeLevel) GetFreePoint() (x, y int) {
+    startX, startY := sl.field.Position()
+    width, height := sl.field.Size()
+    return (width - startX) / 2, (height - startY) / 2 // FIXME
+}
+
+func (sl *SnakeLevel) Draw(screen *tl.Screen) {
+    if sl.foodManager.IsTime(screen.TimeDelta()) {
+        x, y := sl.GetFreePoint()
+        food := sl.foodManager.MakeFood(x, y)
+        sl.AddEntity(food)
+    }
+    sl.BaseLevel.Draw(screen)
 }
