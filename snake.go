@@ -101,6 +101,7 @@ type Snake struct {
     alive bool
     moves *Moves
     ate bool
+    Level *SnakeLevel
 }
 
 func NewSnake(x, y int, color tl.Attr) *Snake {
@@ -252,5 +253,8 @@ func (s *Snake) Collide(other tl.Physical) {
         s.alive = true
     case *Background:
         s.Die()
+    case *Food:
+        s.ate = true
+        s.Level.FoodGone(other.(*Food))
     }
 }

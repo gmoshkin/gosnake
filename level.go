@@ -10,7 +10,7 @@ const (
     LevelBorderColor tl.Attr = tl.ColorGreen
     LevelBorderWidth int = 3
     LevelColor tl.Attr = tl.ColorBlack
-    FoodColor tl.Attr = tl.ColorYellow
+    FoodColor tl.Attr = tl.ColorMagenta
     FoodFrequency float64 = 5.0
     MaxTries int = 100
 )
@@ -95,6 +95,7 @@ func NewSnakeLevel() *SnakeLevel {
         NewSnake(10, 10, tl.ColorWhite),
         NewFoodManager(),
     }
+    l.snake.Level = l
     l.AddEntity(l.background)
     l.AddEntity(l.field)
     l.AddEntity(l.snake)
@@ -117,11 +118,16 @@ func  collides(x, y, pX, pY, pW, pH int) bool {
 
 func (sl *SnakeLevel) isVacant(x, y int) bool {
     for _, e := range sl.Entities {
-        p, ok := e.(tl.Physical)
-        if ok && p != sl.background && p != sl.field {
-            pX, pY := p.Position()
-            pW, pH := p.Size()
-            return !collides(x, y, pX, pY, pW, pH)
+        switch e.(type) {
+            case *Field:
+                continue
+            case *Background:
+                continue
+            case tl.Physical:
+                p, _ := e.(tl.Physical)
+                pX, pY := p.Position()
+                pW, pH := p.Size()
+                return !collides(x, y, pX, pY, pW, pH)
         }
     }
     return false
@@ -151,4 +157,8 @@ func (sl *SnakeLevel) Draw(screen *tl.Screen) {
         }
     }
     sl.BaseLevel.Draw(screen)
+}
+
+func (sl *SnakeLevel) FoodGone(food *Food) {
+    sl.RemoveEntity(food)
 }
