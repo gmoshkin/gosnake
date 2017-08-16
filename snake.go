@@ -8,6 +8,9 @@ import (
 type Direction uint8
 type Acceleration float64
 type Growth int
+type MouseDirection struct {
+    x, y int
+}
 
 const (
     DirectionUp Direction = iota
@@ -155,6 +158,8 @@ func (s *Snake) DoAction() {
         s.frequency += float64(action)
     case Growth:
         s.ate = true
+    case MouseDirection:
+        s.SetDirectionFromMouse(action)
     }
 }
 
@@ -188,6 +193,24 @@ func (s *Snake) Move() {
     }
 }
 
+func (s *Snake) SetDirectionFromMouse(mDir MouseDirection) {
+    x, y := s.Position()
+    switch s.direction {
+    case DirectionUp, DirectionDown:
+        if mDir.x < x {
+            s.direction = DirectionLeft
+        } else if mDir.x > x {
+            s.direction = DirectionRight
+        }
+    case DirectionLeft, DirectionRight:
+        if mDir.y * 2 < y {
+            s.direction = DirectionUp
+        } else if mDir.y * 2 > y {
+            s.direction = DirectionDown
+        }
+    }
+}
+
 func (s *Snake) SetDirection(dir Direction) {
     switch dir {
     case DirectionUp, DirectionDown:
@@ -204,7 +227,8 @@ func (s *Snake) SetDirection(dir Direction) {
 }
 
 func (s *Snake) Tick(event tl.Event) {
-    if event.Type == tl.EventKey {
+    switch event.Type {
+    case tl.EventKey:
         switch event.Key {
         case tl.KeyArrowUp:
             s.moves.Add(DirectionUp)
@@ -230,6 +254,11 @@ func (s *Snake) Tick(event tl.Event) {
             s.moves.Add(AccelerationDown)
         case 'e':
             s.moves.Add(Grow)
+        }
+    case tl.EventMouse:
+        switch event.Key {
+        case tl.MouseLeft:
+            s.moves.Add(MouseDirection { event.MouseX, event.MouseY });
         }
     }
 }
