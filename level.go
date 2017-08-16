@@ -1,7 +1,7 @@
 package main
 
 import (
-    tl "github.com/JoelOtter/termloop"
+    tl "github.com/gmoshkin/termloop"
     "container/list"
     "math/rand"
 )
@@ -136,6 +136,9 @@ func (sl *SnakeLevel) isVacant(x, y int) bool {
 func (sl *SnakeLevel) GetVacantPoint() (x, y int) {
     startX, startY := sl.field.Position()
     width, height := sl.field.Size()
+    if width < 0 || height < 0 {
+        return -1, -1
+    }
     leftTries := MaxTries
     for leftTries != 0 {
         x = randomCoordinate(startX, width)

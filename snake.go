@@ -1,7 +1,7 @@
 package main
 
 import (
-    tl "github.com/JoelOtter/termloop"
+    tl "github.com/gmoshkin/termloop"
     "container/list"
 )
 
