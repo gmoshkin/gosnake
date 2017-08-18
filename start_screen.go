@@ -55,9 +55,11 @@ func (b *StartButton) Draw(screen *tl.Screen) {
     }
 }
 
-func NewStartScreen(callback Callback) *tl.Screen {
+func NewStartScreen() *tl.Screen {
     s := tl.NewScreen()
     s.SetFps(30)
-    s.AddEntity(NewStartButton(callback, "Press Enter to start"))
+    s.AddEntity(NewStartButton(func() {
+        g.SetScreen(NewGameScreen())
+    }, "Press Enter to start"))
     return s
 }

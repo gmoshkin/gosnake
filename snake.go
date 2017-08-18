@@ -265,6 +265,7 @@ func (s *Snake) Tick(event tl.Event) {
 
 func (s *Snake) Draw(screen *tl.Screen) {
     if ! s.alive {
+        g.SetScreen(NewGameOverScreen())
         return
     }
     s.lastMoved += screen.TimeDelta()

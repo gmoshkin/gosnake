@@ -17,9 +17,6 @@ func NewGameScreen() *tl.Screen {
 
 func NewGame() *tl.Game {
     g = tl.NewGame()
-    startScreen := NewStartScreen(func () {
-        g.SetScreen(NewGameScreen())
-    })
-    g.SetScreen(startScreen)
+    g.SetScreen(NewStartScreen())
     return g
 }
