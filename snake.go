@@ -33,9 +33,13 @@ const (
     deadSnakeColor tl.Attr = tl.ColorRed
 )
 
+///////////////////////////////////// Node /////////////////////////////////////
+
 type Node struct {
     x, y int
 }
+
+///////////////////////////////////// Tail /////////////////////////////////////
 
 type Tail struct {
     cells *list.List
@@ -78,6 +82,8 @@ func (t *Tail) Collides(x, y int) bool {
     return false
 }
 
+//////////////////////////////////// Moves /////////////////////////////////////
+
 type Moves struct {
     queue *list.List
 }
@@ -94,6 +100,8 @@ func (m *Moves) Pop() interface{} {
     m.queue.Remove(move)
     return move.Value
 }
+
+//////////////////////////////////// Snake /////////////////////////////////////
 
 type Snake struct {
     *tl.Entity

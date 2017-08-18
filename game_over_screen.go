@@ -7,53 +7,39 @@ import (
 const (
     GameOverTitleFgColor tl.Attr = tl.ColorRed
     GameOverTitleBgColor tl.Attr = tl.ColorDefault
-    GameOverButtonBgColor tl.Attr = tl.ColorGreen
+    GameOverButtonBgColor tl.Attr = tl.ColorBlue
     GameOverButtonFgColor tl.Attr = tl.ColorWhite
     GameOverButtonTextXMargin int = 2
     GameOverButtonTextYMargin int = 1
 )
 
+//////////////////////////////// GameOverButton ////////////////////////////////
+
 type GameOverButton struct {
-    *tl.Rectangle
-    callback Callback
-    text *tl.Text
-    wasPressed bool
+    *Button
 }
 
-func NewGameOverButton(callback Callback, text string) *GameOverButton {
+func NewGameOverButton() *GameOverButton {
     return &GameOverButton {
-        tl.NewRectangle(1, 1, 1, 1, GameOverButtonBgColor),
-        callback,
-        tl.NewText(1, 1, text, GameOverButtonFgColor, GameOverButtonBgColor),
-        false,
-    }
-}
-
-func (b *GameOverButton) Tick(event tl.Event) {
-    switch event.Type {
-    case tl.EventKey:
-        if event.Key == tl.KeyEnter {
-            b.wasPressed = true
-        }
+        NewButton(
+            func() { g.SetScreen(NewGameScreen()) },
+            "press enter to start over",
+            GameOverButtonFgColor,
+            GameOverButtonBgColor,
+            GameOverButtonTextXMargin,
+            GameOverButtonTextYMargin,
+        ),
     }
 }
 
 func (b *GameOverButton) Draw(screen *tl.Screen) {
     scrnW, scrnH := screen.Size()
-    txtW, txtH := b.text.Size()
-    btnW := txtW + GameOverButtonTextXMargin * 2
-    btnH := txtH + GameOverButtonTextYMargin * 2
-    btnX := (scrnW - btnW) / 2
-    btnY := (scrnH - btnH) / 2 + 2
-    b.Rectangle.SetSize(btnW, btnH)
-    b.Rectangle.SetPosition(btnX, btnY)
-    b.Rectangle.Draw(screen)
-    b.text.SetPosition(btnX + GameOverButtonTextXMargin, btnY + GameOverButtonTextYMargin)
-    b.text.Draw(screen)
-    if b.wasPressed {
-        b.callback()
-    }
+    btnW, btnH := b.GetSize()
+    b.SetPosition((scrnW - btnW) / 2, (scrnH - btnH) / 2 + 2)
+    b.Button.Draw(screen)
 }
+
+//////////////////////////////// GameOverTitle /////////////////////////////////
 
 type GameOverTitle struct {
     *tl.Text
@@ -72,12 +58,12 @@ func NewGameOverTitle() *GameOverTitle {
     }
 }
 
+//////////////////////////////// GameOverScreen ////////////////////////////////
+
 func NewGameOverScreen() *tl.Screen {
     s := tl.NewScreen()
     s.SetFps(30)
     s.AddEntity(NewGameOverTitle())
-    s.AddEntity(NewGameOverButton(func () {
-        g.SetScreen(NewGameScreen())
-    },"Press Enter to start over"))
+    s.AddEntity(NewGameOverButton())
     return s
 }

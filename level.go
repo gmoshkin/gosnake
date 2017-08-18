@@ -15,6 +15,8 @@ const (
     MaxTries int = 100
 )
 
+////////////////////////////////// Background //////////////////////////////////
+
 type Background struct {
     *tl.Rectangle
 }
@@ -27,6 +29,8 @@ func (b *Background) Draw(screen *tl.Screen) {
 func NewBackground() *Background {
     return &Background { tl.NewRectangle(0, 0, 1, 1, LevelBorderColor) }
 }
+
+//////////////////////////////////// Field /////////////////////////////////////
 
 type Field struct {
     *tl.Rectangle
@@ -46,6 +50,8 @@ func NewField() *Field {
     }
 }
 
+///////////////////////////////////// Food /////////////////////////////////////
+
 type Food struct {
     *tl.Entity
 }
@@ -55,6 +61,8 @@ func NewFood(x, y int) *Food {
     f.SetCell(0, 0, &tl.Cell { Bg: FoodColor, Ch: 'f' })
     return f
 }
+
+///////////////////////////////// FoodManager //////////////////////////////////
 
 type FoodManager struct {
     foods *list.List
@@ -78,6 +86,8 @@ func (fm *FoodManager) IsTime(timeDelta float64) bool {
     }
     return false
 }
+
+////////////////////////////////// SnakeLevel //////////////////////////////////
 
 type SnakeLevel struct {
     *tl.BaseLevel
