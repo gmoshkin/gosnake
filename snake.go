@@ -17,13 +17,12 @@ const (
     DirectionRight
     DirectionDown
     DirectionLeft
-    AccelerationUp Acceleration = -0.2
+    AccelerationUp Acceleration = -0.01
     AccelerationDown Acceleration = -AccelerationUp
     Grow Growth = iota
 )
 
 const (
-    snakeAcceleration float64 = 0.04
     defaultFrequency float64 = 0.3
     defaultDirection Direction = DirectionRight
     defaultLastMoved float64 = 0.0
@@ -112,7 +111,7 @@ type Snake struct {
     alive bool
     moves *Moves
     ate bool
-    Level *SnakeLevel
+    level *SnakeLevel
 }
 
 func NewSnake(x, y int, color tl.Attr) *Snake {
@@ -131,6 +130,7 @@ func NewSnake(x, y int, color tl.Attr) *Snake {
 
 func (s *Snake) Die() {
     s.alive = false
+    g.SetScreen(NewGameOverScreen())
     // s.SetCell(0, 0, &tl.Cell{Bg: deadSnakeColor, Ch: 's'})
 }
 
@@ -188,7 +188,7 @@ func (s *Snake) Move() {
     case DirectionRight:
         newX++
     }
-    if s.tail.Collides(newX, newY) {
+    if s.tail.Collides(newX, newY) || s.level.IsBorder(newX, newY) {
         s.Die()
     } else {
         if s.ate {
@@ -273,7 +273,6 @@ func (s *Snake) Tick(event tl.Event) {
 
 func (s *Snake) Draw(screen *tl.Screen) {
     if ! s.alive {
-        g.SetScreen(NewGameOverScreen())
         return
     }
     s.lastMoved += screen.TimeDelta()
@@ -287,12 +286,8 @@ func (s *Snake) Draw(screen *tl.Screen) {
 
 func (s *Snake) Collide(other tl.Physical) {
     switch other.(type) {
-    case *Field:
-        s.alive = true
-    case *Background:
-        s.Die()
     case *Food:
         s.ate = true
-        s.Level.FoodGone(other.(*Food))
+        s.level.FoodGone(other.(*Food))
     }
 }

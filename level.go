@@ -65,7 +65,7 @@ func NewSnakeLevel() *SnakeLevel {
         NewSnake(10, 10, tl.ColorWhite),
         NewFoodManager(),
     }
-    l.snake.Level = l
+    l.snake.level = l
     l.AddEntity(l.background)
     l.AddEntity(l.field)
     l.AddEntity(l.snake)
@@ -134,4 +134,10 @@ func (sl *SnakeLevel) Draw(screen *tl.Screen) {
 
 func (sl *SnakeLevel) FoodGone(food *Food) {
     sl.RemoveEntity(food)
+}
+
+func (sl *SnakeLevel) IsBorder(x, y int) bool {
+    width, height := sl.background.Size()
+    return (x < LevelBorderWidth || y < LevelBorderWidth ||
+            x >= width - LevelBorderWidth || y >= height - LevelBorderWidth)
 }
