@@ -88,7 +88,9 @@ type Moves struct {
 }
 
 func (m *Moves) Add(move interface{}) {
-    m.queue.PushFront(move)
+    if m.queue.Len() < 2 {
+        m.queue.PushFront(move)
+    }
 }
 
 func (m *Moves) Pop() interface{} {
