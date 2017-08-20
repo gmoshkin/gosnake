@@ -17,8 +17,8 @@ const (
     DirectionRight
     DirectionDown
     DirectionLeft
-    AccelerationUp Acceleration = -0.01
-    AccelerationDown Acceleration = -AccelerationUp
+    AccelerationUp Acceleration = .7
+    AccelerationDown Acceleration = 1/AccelerationUp
     Grow Growth = iota
 )
 
@@ -165,7 +165,7 @@ func (s *Snake) DoAction() {
     case Direction:
         s.SetDirection(action)
     case Acceleration:
-        s.frequency += float64(action)
+        s.frequency *= float64(action)
     case Growth:
         s.ate = true
     case MouseDirection:
@@ -292,4 +292,8 @@ func (s *Snake) Collide(other tl.Physical) {
         s.ate = true
         s.level.FoodGone(other.(*Food))
     }
+}
+
+func (s *Snake) Accelerate() {
+    s.frequency *= float64(AccelerationUp)
 }

@@ -7,7 +7,7 @@ import (
 
 const (
     FoodColor tl.Attr = tl.ColorMagenta
-    FoodFrequency float64 = 5.0
+    FoodFrequency float64 = 8.0
 )
 
 ///////////////////////////////////// Food /////////////////////////////////////

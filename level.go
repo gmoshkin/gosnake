@@ -10,6 +10,7 @@ const (
     LevelBorderWidth int = 3
     LevelColor tl.Attr = tl.ColorBlack
     MaxTries int = 100
+    FoodEatenTillUpgrade int = 5
 )
 
 ////////////////////////////////// Background //////////////////////////////////
@@ -55,6 +56,7 @@ type SnakeLevel struct {
     field *Field
     snake *Snake
     foodManager *FoodManager
+    foodEaten int
 }
 
 func NewSnakeLevel() *SnakeLevel {
@@ -64,6 +66,7 @@ func NewSnakeLevel() *SnakeLevel {
         NewField(),
         NewSnake(10, 10, tl.ColorWhite),
         NewFoodManager(),
+        0,
     }
     l.snake.level = l
     l.AddEntity(l.background)
@@ -134,6 +137,10 @@ func (sl *SnakeLevel) Draw(screen *tl.Screen) {
 
 func (sl *SnakeLevel) FoodGone(food *Food) {
     sl.RemoveEntity(food)
+    sl.foodEaten += 1
+    if sl.foodEaten % FoodEatenTillUpgrade == 0 {
+        sl.snake.Accelerate()
+    }
 }
 
 func (sl *SnakeLevel) IsBorder(x, y int) bool {
